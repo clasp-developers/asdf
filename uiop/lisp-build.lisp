@@ -4,7 +4,7 @@
 (uiop/package:define-package :uiop/lisp-build
   (:nicknames :asdf/lisp-build) ;; OBSOLETE, used by slime/contrib/swank-asdf.lisp
   (:use :uiop/common-lisp :uiop/package :uiop/utility
-   :uiop/os :uiop/pathname :uiop/filesystem :uiop/stream :uiop/image)
+   :uiop/os :uiop/pathname :uiop/filesystem :uiop/stream :uiop/eval :uiop/image)
   (:export
    ;; Variables
    #:*compile-file-warnings-behaviour* #:*compile-file-failure-behaviour*

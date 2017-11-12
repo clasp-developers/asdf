@@ -401,7 +401,7 @@ If optional ERROR argument is NIL, return NIL instead of an error when the symbo
 
 ;;; Function designators
 (with-upgradability ()
-  (defun ensure-function (fun &key (package :cl))
+  (defun ensure-function (fun &key package)
     "Coerce the object FUN into a function.
 
 If FUN is a FUNCTION, return it.
@@ -422,7 +422,7 @@ and EVAL that in a (FUNCTION ...) context."
                 (eval fun)
                 #'(lambda (&rest args) (apply (car fun) (append (cdr fun) args)))))
       (string (eval `(function ,(with-standard-io-syntax
-                                  (let ((*package* (find-package package)))
+                                  (let ((*package* (find-package (or package :common-lisp))))
                                     (read-from-string fun))))))))
 
   (defun access-at (object at)
@@ -528,7 +528,6 @@ Return two values: the entry after its optional computation, and whether it was 
 up to the given equality TEST"
     (dolist (x list h) (setf (gethash x h) t))))
 
-
 ;;; Lexicographic comparison of lists of numbers
 (with-upgradability ()
   (defun lexicographic< (element< x y)
@@ -545,7 +544,6 @@ element< is a strict total order; the resulting order on X and Y will also be st
 element< is a strict total order; the resulting order on X and Y will be a non-strict total order."
     (not (lexicographic< element< y x))))
 
-
 ;;; Simple style warnings
 (with-upgradability ()
   (define-condition simple-style-warning
@@ -558,9 +556,7 @@ element< is a strict total order; the resulting order on X and Y will be a non-s
       (symbol (assert (subtypep datum 'style-warning)) (apply 'warn datum arguments))
       (style-warning (apply 'warn datum arguments)))))
 
-
 ;;; Condition control
-
 (with-upgradability ()
   (defparameter +simple-condition-format-control-slot+
     #+abcl 'system::format-control
@@ -605,7 +601,6 @@ or a string describing the format-control of a simple-condition."
     `(call-with-muffled-conditions #'(lambda () ,@body) ,conditions)))
 
 ;;; Conditions
-
 (with-upgradability ()
   (define-condition not-implemented-error (error)
     ((functionality :initarg :functionality)

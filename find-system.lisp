@@ -89,18 +89,8 @@
     (assert (equal (coerce-name s) (primary-system-name s)))
     (nest
      (if-let ((pathname (first (input-files o s)))))
-     (let ((readtable *readtable*) ;; save outer syntax tables. TODO: proper syntax-control
-           (print-pprint-dispatch *print-pprint-dispatch*)))
-     (with-standard-io-syntax)
-     (let ((*print-readably* nil)
-           ;; Note that our backward-compatible *readtable* is
-           ;; a global readtable that gets globally side-effected. Ouch.
-           ;; Same for the *print-pprint-dispatch* table.
-           ;; We should do something about that for ASDF3 if possible, or else ASDF4.
-           (*readtable* readtable) ;; restore inside syntax table
-           (*print-pprint-dispatch* print-pprint-dispatch)
-           (*package* (find-package :asdf-user))
-           (*default-pathname-defaults*
+     (with-shared-syntax (:package :asdf-user))
+     (let ((*default-pathname-defaults*
             ;; resolve logical-pathnames so they won't wreak havoc in parsing namestrings.
             (pathname-directory-pathname (physicalize-pathname pathname)))))
      (handler-bind

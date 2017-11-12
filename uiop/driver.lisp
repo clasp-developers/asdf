@@ -11,7 +11,7 @@
    ;; or :use (closer-common-lisp uiop), etc.
   (:use-reexport
    :uiop/package :uiop/utility :uiop/version
-   :uiop/os :uiop/pathname :uiop/filesystem :uiop/stream :uiop/image
+   :uiop/os :uiop/pathname :uiop/filesystem :uiop/stream :uiop/eval :uiop/image
    :uiop/launch-program :uiop/run-program
    :uiop/lisp-build :uiop/configuration :uiop/backward-driver))
 

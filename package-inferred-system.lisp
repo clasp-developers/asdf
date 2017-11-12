@@ -46,8 +46,9 @@ every such file"))
 
   ;; Find the first defpackage form in a stream, if any
   (defun stream-defpackage-form (stream)
-    (loop :for form = (read stream nil nil) :while form
-          :when (defpackage-form-p form) :return form))
+    (with-shared-syntax (:package :asdf-user)
+      (loop :for form = (read stream nil nil) :while form
+            :when (defpackage-form-p form) :return form)))
 
   (defun file-defpackage-form (file)
     "Return the first DEFPACKAGE form in FILE."

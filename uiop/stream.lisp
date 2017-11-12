@@ -20,7 +20,6 @@
    #:slurp-stream-forms #:slurp-stream-form
    #:read-file-string #:read-file-line #:read-file-lines #:safe-read-file-line
    #:read-file-forms #:read-file-form #:safe-read-file-form
-   #:eval-input #:eval-thunk #:standard-eval-thunk
    #:println #:writeln
    #:file-stream-p #:file-or-synonym-stream-p
    ;; Temporary files
@@ -138,26 +137,21 @@ from non-default encodings to and implementation-defined external-format's")
 going through all the proper hooks."
     (funcall *encoding-external-format-hook* (or encoding *default-encoding*))))
 
-
-;;; Safe syntax
+;;; Safe I/O
 (with-upgradability ()
-  (defvar *standard-readtable* (with-standard-io-syntax *readtable*)
-    "The standard readtable, implementing the syntax specified by the CLHS.
-It must never be modified, though only good implementations will even enforce that.")
-
-  (defmacro with-safe-io-syntax ((&key (package :cl)) &body body)
+  (defmacro with-safe-io-syntax ((&key package) &body body)
     "Establish safe CL reader options around the evaluation of BODY"
-    `(call-with-safe-io-syntax #'(lambda () (let ((*package* (find-package ,package))) ,@body))))
+    `(call-with-safe-io-syntax #'(lambda () ,@body) :package ,package))
 
-  (defun call-with-safe-io-syntax (thunk &key (package :cl))
+  (defun call-with-safe-io-syntax (function &key package)
     (with-standard-io-syntax
-      (let ((*package* (find-package package))
+      (let ((*package* (find-package (or package :common-lisp)))
             (*read-default-float-format* 'double-float)
             (*print-readably* nil)
             (*read-eval* nil))
-        (funcall thunk))))
+        (call-function function))))
 
-  (defun safe-read-from-string (string &key (package :cl) (eof-error-p t) eof-value (start 0) end preserve-whitespace)
+  (defun safe-read-from-string (string &key package (eof-error-p t) eof-value (start 0) end preserve-whitespace)
     "Read from STRING using a safe syntax, as per WITH-SAFE-IO-SYNTAX"
     (with-safe-io-syntax (:package package)
       (read-from-string string eof-error-p eof-value :start start :end end :preserve-whitespace preserve-whitespace))))
@@ -487,37 +481,9 @@ within an WITH-SAFE-IO-SYNTAX using the specified PACKAGE."
 Extracts the form using READ-FILE-FORM,
 within an WITH-SAFE-IO-SYNTAX using the specified PACKAGE."
     (with-safe-io-syntax (:package package)
-      (apply 'read-file-form pathname (remove-plist-key :package keys))))
+      (apply 'read-file-form pathname (remove-plist-key :package keys)))))
 
-  (defun eval-input (input)
-    "Portably read and evaluate forms from INPUT, return the last values."
-    (with-input (input)
-      (loop :with results :with eof ='#:eof
-            :for form = (read input nil eof)
-            :until (eq form eof)
-            :do (setf results (multiple-value-list (eval form)))
-            :finally (return (values-list results)))))
-
-  (defun eval-thunk (thunk)
-    "Evaluate a THUNK of code:
-If a function, FUNCALL it without arguments.
-If a constant literal and not a sequence, return it.
-If a cons or a symbol, EVAL it.
-If a string, repeatedly read and evaluate from it, returning the last values."
-    (etypecase thunk
-      ((or boolean keyword number character pathname) thunk)
-      ((or cons symbol) (eval thunk))
-      (function (funcall thunk))
-      (string (eval-input thunk))))
-
-  (defun standard-eval-thunk (thunk &key (package :cl))
-    "Like EVAL-THUNK, but in a more standardized evaluation context."
-    ;; Note: it's "standard-" not "safe-", because evaluation is never safe.
-    (when thunk
-      (with-safe-io-syntax (:package package)
-        (let ((*read-eval* t))
-          (eval-thunk thunk))))))
-
+;;; Printers
 (with-upgradability ()
   (defun println (x &optional (stream *standard-output*))
     "Variant of PRINC that also calls TERPRI afterwards"
