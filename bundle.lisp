@@ -249,7 +249,7 @@ for all the linkable object files associated with the system or its dependencies
                                      "--all-systems"
                                      ;; These use a different type .fasb or .a instead of .fasl
                                      #-(or clasp ecl mkcl) "--system"))))
-                          (format nil "~A~@[~A~]" (component-name c) suffix))))
+                          (format nil "~A~@[~A~]" (coerce-filename (component-name c)) suffix))))
               (type (bundle-pathname-type bundle-type)))
           (values (list (subpathname (component-pathname c) name :type type))
                   (eq (class-of o) (coerce-class (component-build-operation c)
@@ -420,7 +420,7 @@ or of opaque libraries shipped along the source code."))
 ;;;
 (with-upgradability ()
   (defmethod output-files ((o deliver-asd-op) (s system))
-    (list (make-pathname :name (component-name s) :type "asd"
+    (list (make-pathname :name (coerce-filename (component-name s)) :type "asd"
                          :defaults (component-pathname s))))
 
   (defmethod perform ((o deliver-asd-op) (s system))
