@@ -6,6 +6,9 @@
 ;;; Test for GitLab issue 23
 ;;;---------------------------------------------------------------------------
 
+#+(or (and ecl ecl-bytecmp) gcl)
+(leave-test "bundles not on implemented this implementation" 0)
+
 (defparameter *test-system-name* "deliver-bundle")
 
 (asdf:initialize-source-registry '(:source-registry
