@@ -58,7 +58,8 @@
 #+clasp
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (setf *load-verbose* nil)
-  (defun use-ecl-byte-compiler-p () nil))
+  (defun use-ecl-byte-compiler-p ()
+    (eq core::*clasp-build-mode* :bytecode)))
 
 #+clozure (in-package :ccl)
 #+(and clozure windows-target) ;; See http://trac.clozure.com/ccl/ticket/1117

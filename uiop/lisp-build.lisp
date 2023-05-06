@@ -764,7 +764,7 @@ it will filter them appropriately."
                (rename-file-overwriting-target tmp-lib lib-file))
              #+sbcl (when cfasl-file (rename-file-overwriting-target tmp-cfasl cfasl-file))
              #+clasp
-             (progn
+             (when object-file
                ;;; the following 4 rename-file-overwriting-target better be atomic, but we can't implement this right now
                #+:target-os-darwin
                (let ((temp-dwarf (pathname (strcat (namestring output-truename) ".dwarf")))
