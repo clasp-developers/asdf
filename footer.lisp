@@ -46,7 +46,7 @@
   #+clisp (if-let (x (find-symbol* '#:*module-provider-functions* :custom nil))
             (eval `(pushnew 'module-provide-asdf ,x)))
 
-  #+(or clasp ecl mkcl)
+  #+(or ecl mkcl)
   (progn
     (pushnew '("fasb" . si::load-binary) *load-hooks* :test 'equal :key 'car)
 
