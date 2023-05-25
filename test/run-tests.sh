@@ -242,7 +242,7 @@ case "$lisp" in
     eval="--eval" ;;
   clasp)
     command="${CLASP:-clasp}"
-    flags="--norc --noinit"
+    flags="--norc"
     eval="--eval" ;;
   clisp)
     command="${CLISP:-clisp}"
